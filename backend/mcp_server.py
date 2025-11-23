@@ -104,8 +104,6 @@ class CFanaticAgent:
             gemini_key = state["gemini_key"]
             user_handle = state["user_handle"]
             
-            # Add system message with user context at the beginning if not already present
-            # Only add if there are messages and the first one is not a SystemMessage
             if messages and not isinstance(messages[0], SystemMessage):
                 system_msg = SystemMessage(content=f"""You are CFanatic, an AI assistant specialized in helping competitive programmers analyze their Codeforces performance.
 
@@ -166,6 +164,6 @@ Be helpful, insightful, and provide actionable advice to improve their competiti
         }
         
         final_state = await self.graph.ainvoke(inputs)
-        return final_state["messages"][-1].content.replace("**", "")
+        return final_state["messages"][-1].content
 
 agent = CFanaticAgent()
