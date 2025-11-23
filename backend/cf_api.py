@@ -73,6 +73,32 @@ class CodeforcesAPI:
         """
         return await self._make_request("contest.list", {"gym": str(gym).lower()})
 
+    async def get_contest_standings(self, contest_id: int, from_index: int = 1, count: int = 5, show_unofficial: bool = False):
+        """
+        Returns the description of the contest and the requested part of the standings.
+        """
+        return await self._make_request("contest.standings", {
+            "contestId": contest_id,
+            "from": from_index,
+            "count": count,
+            "showUnofficial": str(show_unofficial).lower()
+        })
+
+    async def get_problems(self, tags: str = None):
+        """
+        Returns all problems from problemset. Problems can be filtered by tags.
+        """
+        params = {}
+        if tags:
+            params["tags"] = tags
+        return await self._make_request("problemset.problems", params)
+
+    async def get_user_blog_entries(self, handle: str):
+        """
+        Returns a list of all user's blog entries.
+        """
+        return await self._make_request("user.blogEntries", {"handle": handle})
+
 if __name__ == "__main__":
     async def main():
         cf = CodeforcesAPI()

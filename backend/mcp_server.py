@@ -43,6 +43,38 @@ async def get_user_rating(handle: str):
     except Exception as e:
         return f"Error fetching rating: {e}"
 
+@tool
+async def get_contest_list(gym: bool = False):
+    """Get upcoming and past contests."""
+    try:
+        return await cf_api.get_contest_list(gym)
+    except Exception as e:
+        return f"Error fetching contests: {e}"
+
+@tool
+async def get_contest_standings(contest_id: int, count: int = 5):
+    """Get standings for a specific contest."""
+    try:
+        return await cf_api.get_contest_standings(contest_id, count=count)
+    except Exception as e:
+        return f"Error fetching standings: {e}"
+
+@tool
+async def get_problems(tags: str = None):
+    """Get problems from the problemset, optionally filtered by tags (semicolon-separated)."""
+    try:
+        return await cf_api.get_problems(tags)
+    except Exception as e:
+        return f"Error fetching problems: {e}"
+
+@tool
+async def get_user_blog_entries(handle: str):
+    """Get blog entries for a user."""
+    try:
+        return await cf_api.get_user_blog_entries(handle)
+    except Exception as e:
+        return f"Error fetching blog entries: {e}"
+
 from rag import rag_system
 
 @tool
@@ -56,7 +88,8 @@ async def search_knowledge_base(query: str):
     except Exception as e:
         return f"Error searching knowledge base: {e}"
 
-tools = [get_user_info, get_user_submissions, get_user_rating, search_knowledge_base]
+tools = [get_user_info, get_user_submissions, get_user_rating, search_knowledge_base, get_contest_list, get_contest_standings, get_problems, get_user_blog_entries]
+
 
 class CFanaticAgent:
     def __init__(self):
@@ -84,6 +117,12 @@ Available tools:
 - get_user_info: Get user rank, rating, and profile information
 - get_user_submissions: Get recent submissions
 - get_user_rating: Get rating history over time
+- get_contest_list: Get list of contests
+- get_contest_standings: Get standings for a contest
+- get_problems: Find problems (optionally by tag) use this when user ask for problems on different topic 
+[schedules fft expression parsing flows games geometry graph matchings graphs greedy hashing implementation interactive 
+math matrices meet-in-the-middle number theory probabilities shortest paths sortings string suffix structures strings ternary search trees two pointers] there are all the tags you can use
+- get_user_blog_entries: Get user's blog posts 
 - search_knowledge_base: Search for general competitive programming knowledge
 
 Be helpful, insightful, and provide actionable advice to improve their competitive programming skills.""")
@@ -94,7 +133,6 @@ Be helpful, insightful, and provide actionable advice to improve their competiti
                 google_api_key=gemini_key,
                 temperature=0.7
             ).bind_tools(tools)
-            
             response = await llm.ainvoke(messages)
             return {"messages": [response]}
 
@@ -128,6 +166,6 @@ Be helpful, insightful, and provide actionable advice to improve their competiti
         }
         
         final_state = await self.graph.ainvoke(inputs)
-        return final_state["messages"][-1].content
+        return final_state["messages"][-1].content.replace("**", "")
 
 agent = CFanaticAgent()
